@@ -178,3 +178,57 @@ button:hover {
     flex-direction: column;
     gap: 15px;
 }
+/* Dashboard */
+
+#dashboard {
+    margin-top: 30px;
+}
+
+#dashboard .summary-cards {
+    margin-top: 20px;
+}
+
+#dashboard .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#dashboard .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+#dashboard .card p {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+#vulnerabilityDistribution {
+    margin-top: 15px;
+}
+
+.dashboard-bar {
+    margin: 12px 0;
+}
+
+.dashboard-bar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.dashboard-bar-track {
+    width: 100%;
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dashboard-bar-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 8px;
+    background: #1f2937;
+    transition: width 0.5s ease;
+}

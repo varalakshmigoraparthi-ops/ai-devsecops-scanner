@@ -111,3 +111,37 @@ def scan_history(db: Session = Depends(get_db)):
             for result in results
         ]
     }
+
+
+    
+@router.get("/dashboard")
+def dashboard(db: Session = Depends(get_db)):
+    results = db.query(ScanResult).all()
+
+    severity_counts = {
+        "CRITICAL": 0,
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0
+    }
+
+    vulnerability_counts = {}
+
+    for result in results:
+        severity = result.severity.upper()
+
+        if severity in severity_counts:
+            severity_counts[severity] += 1
+
+        vulnerability_type = result.vulnerability_type
+
+        if vulnerability_type not in vulnerability_counts:
+            vulnerability_counts[vulnerability_type] = 0
+
+        vulnerability_counts[vulnerability_type] += 1
+
+    return {
+        "total_vulnerabilities": len(results),
+        "severity_counts": severity_counts,
+        "vulnerability_counts": vulnerability_counts
+    }

@@ -358,5 +358,68 @@ async function loadScanHistory() {
 }
 
 
-// Start history loading
-loadScanHistory();
+async function loadDashboard() {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/dashboard");
+
+        if (!response.ok) {
+            throw new Error("Failed to load dashboard");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("dashboardTotal").textContent =
+            data.total_vulnerabilities;
+
+        document.getElementById("dashboardCritical").textContent =
+            data.severity_counts.CRITICAL;
+
+        document.getElementById("dashboardHigh").textContent =
+            data.severity_counts.HIGH;
+
+        document.getElementById("dashboardMedium").textContent =
+            data.severity_counts.MEDIUM;
+
+        const distribution =
+            document.getElementById("vulnerabilityDistribution");
+
+        distribution.innerHTML = "";
+const vulnerabilityCounts = data.vulnerability_counts;
+const maxCount = Math.max(...Object.values(vulnerabilityCounts), 1);
+
+for (const [type, count] of Object.entries(vulnerabilityCounts)) {
+    const item = document.createElement("div");
+    item.className = "dashboard-bar";
+
+    const label = document.createElement("div");
+    label.className = "dashboard-bar-label";
+
+    const typeLabel = document.createElement("span");
+    typeLabel.textContent = type;
+
+    const countLabel = document.createElement("span");
+    countLabel.textContent = count;
+
+    label.appendChild(typeLabel);
+    label.appendChild(countLabel);
+
+    const track = document.createElement("div");
+    track.className = "dashboard-bar-track";
+
+    const fill = document.createElement("div");
+    fill.className = "dashboard-bar-fill";
+    fill.style.width = `${(count / maxCount) * 100}%`;
+
+    track.appendChild(fill);
+    item.appendChild(label);
+    item.appendChild(track);
+
+    distribution.appendChild(item);
+}
+        
+    } catch (error) {
+        console.error("Dashboard error:", error);
+    }
+}
+
+loadDashboard();
