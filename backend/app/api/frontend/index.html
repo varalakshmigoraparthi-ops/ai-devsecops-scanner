@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI DevSecOps Scanner</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>AI DevSecOps Scanner</h1>
+            <p>AI-powered source code security analysis</p>
+        </header>
+
+
+        <section class="upload-section">
+
+            <h2>Scan Python Code</h2>
+
+            <p class="description">
+                Upload a Python file to detect security vulnerabilities
+                using static analysis and AI-based security recommendations.
+            </p>
+
+            <div class="upload-box">
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    accept=".py"
+                >
+
+                <button id="scanButton">
+                    Scan File
+                </button>
+
+            </div>
+
+            <p id="fileName"></p>
+
+            <p id="status"></p>
+
+        </section>
+
+
+        <section id="summary" class="summary hidden">
+
+            <h2>Security Scan Summary</h2>
+
+            <div class="summary-cards">
+
+                <div class="card">
+                    <h3>Total Findings</h3>
+                    <p id="totalFindings">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Critical</h3>
+                    <p id="criticalFindings">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>High</h3>
+                    <p id="highFindings">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Medium</h3>
+                    <p id="mediumFindings">0</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section id="results" class="results hidden">
+
+            <h2>Vulnerability Report</h2>
+
+            <div id="findingsContainer"></div>
+
+        </section>
+        <section id="history" class="results">
+
+    <h2>Scan History</h2>
+
+    <div id="historyContainer">
+        <p>Loading scan history...</p>
+    </div>
+
+</section>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
