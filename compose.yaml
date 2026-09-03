@@ -1,0 +1,6 @@
+services:
+  scanner:
+    build: .
+    container_name: ai-devsecops-scanner-container
+    ports:
+      - "8000:8000"
