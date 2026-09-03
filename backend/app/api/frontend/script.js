@@ -15,7 +15,10 @@ const mediumFindings = document.getElementById("mediumFindings");
 const findingsContainer = document.getElementById("findingsContainer");
 
 
+// ===============================
 // File selection
+// ===============================
+
 fileInput.addEventListener("change", () => {
 
     if (fileInput.files.length > 0) {
@@ -28,10 +31,12 @@ fileInput.addEventListener("change", () => {
 });
 
 
+// ===============================
 // Scan button
+// ===============================
+
 scanButton.addEventListener("click", async (event) => {
 
-    // Prevent page refresh / form submission
     event.preventDefault();
 
     if (fileInput.files.length === 0) {
@@ -42,9 +47,7 @@ scanButton.addEventListener("click", async (event) => {
         return;
     }
 
-
     const file = fileInput.files[0];
-
 
     if (!file.name.endsWith(".py")) {
 
@@ -54,44 +57,40 @@ scanButton.addEventListener("click", async (event) => {
         return;
     }
 
-
     const formData = new FormData();
 
     formData.append("file", file);
-
 
     status.textContent = "Scanning file...";
 
     scanButton.disabled = true;
 
-
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:8000/scan-file",
+            "/scan-file",
             {
                 method: "POST",
                 body: formData
             }
         );
 
-
         if (!response.ok) {
             throw new Error("Server error");
         }
-
 
         const data = await response.json();
 
         console.log("SCAN API RESPONSE:", data);
 
-
         displayResults(data);
-
 
         status.textContent =
             "Scan completed successfully.";
 
+        // Refresh dashboard and history
+        loadDashboard();
+        loadScanHistory();
 
     } catch (error) {
 
@@ -101,33 +100,29 @@ scanButton.addEventListener("click", async (event) => {
             "Unable to connect to the scanner server.";
     }
 
-
     scanButton.disabled = false;
 });
 
 
+// ===============================
 // Display scan results
+// ===============================
+
 function displayResults(data) {
 
     summary.classList.remove("hidden");
 
     results.classList.remove("hidden");
 
-
     const findings = data.findings || [];
 
-
-    // Total findings
     totalFindings.textContent =
         findings.length;
-
 
     let critical = 0;
     let high = 0;
     let medium = 0;
 
-
-    // Count severity
     findings.forEach(finding => {
 
         if (finding.severity === "CRITICAL") {
@@ -145,34 +140,31 @@ function displayResults(data) {
 
     });
 
-
     criticalFindings.textContent = critical;
 
     highFindings.textContent = high;
 
     mediumFindings.textContent = medium;
 
-
-    // Clear previous results
     findingsContainer.innerHTML = "";
-
 
     // No vulnerabilities
     if (findings.length === 0) {
 
         findingsContainer.innerHTML = `
             <div class="finding">
+
                 <h3>No vulnerabilities found 🎉</h3>
 
                 <p>
                     Your code passed the current security checks.
                 </p>
+
             </div>
         `;
 
         return;
     }
-
 
     // Display vulnerabilities
     findings.forEach(finding => {
@@ -180,13 +172,10 @@ function displayResults(data) {
         const severityClass =
             finding.severity.toLowerCase();
 
-
         const findingCard =
             document.createElement("div");
 
-
         findingCard.className = "finding";
-
 
         findingCard.innerHTML = `
             <h3>
@@ -230,14 +219,16 @@ function displayResults(data) {
             </p>
         `;
 
-
         findingsContainer.appendChild(findingCard);
 
     });
 }
 
 
-// HTML escaping for security
+// ===============================
+// HTML escaping
+// ===============================
+
 function escapeHtml(value) {
 
     const div =
@@ -249,19 +240,19 @@ function escapeHtml(value) {
 }
 
 
+// ===============================
 // Load scan history
+// ===============================
+
 async function loadScanHistory() {
 
     const historyContainer =
         document.getElementById("historyContainer");
 
-
     try {
 
-        const response = await fetch(
-            "http://127.0.0.1:8000/scan-history"
-        );
-
+        const response =
+            await fetch("/scan-history");
 
         if (!response.ok) {
 
@@ -270,15 +261,15 @@ async function loadScanHistory() {
             );
         }
 
-
         const data =
             await response.json();
 
-
         historyContainer.innerHTML = "";
 
-
-        if (data.history.length === 0) {
+        if (
+            !data.history ||
+            data.history.length === 0
+        ) {
 
             historyContainer.innerHTML =
                 "<p>No previous scans found.</p>";
@@ -286,20 +277,16 @@ async function loadScanHistory() {
             return;
         }
 
-
         data.history.forEach(item => {
 
             const historyCard =
                 document.createElement("div");
 
-
             historyCard.className =
                 "finding";
 
-
             const severityClass =
                 item.severity.toLowerCase();
-
 
             historyCard.innerHTML = `
                 <h3>
@@ -339,18 +326,13 @@ async function loadScanHistory() {
                 </p>
             `;
 
-
-            historyContainer.appendChild(
-                historyCard
-            );
+            historyContainer.appendChild(historyCard);
 
         });
-
 
     } catch (error) {
 
         console.error(error);
-
 
         historyContainer.innerHTML =
             "<p>Unable to load scan history.</p>";
@@ -358,68 +340,142 @@ async function loadScanHistory() {
 }
 
 
+// ===============================
+// Load dashboard
+// ===============================
+
 async function loadDashboard() {
+
     try {
-        const response = await fetch("http://127.0.0.1:8000/dashboard");
+
+        const response =
+            await fetch("/dashboard");
 
         if (!response.ok) {
-            throw new Error("Failed to load dashboard");
+
+            throw new Error(
+                "Failed to load dashboard"
+            );
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
-        document.getElementById("dashboardTotal").textContent =
+        document.getElementById(
+            "dashboardTotal"
+        ).textContent =
             data.total_vulnerabilities;
 
-        document.getElementById("dashboardCritical").textContent =
+        document.getElementById(
+            "dashboardCritical"
+        ).textContent =
             data.severity_counts.CRITICAL;
 
-        document.getElementById("dashboardHigh").textContent =
+        document.getElementById(
+            "dashboardHigh"
+        ).textContent =
             data.severity_counts.HIGH;
 
-        document.getElementById("dashboardMedium").textContent =
+        document.getElementById(
+            "dashboardMedium"
+        ).textContent =
             data.severity_counts.MEDIUM;
 
+
         const distribution =
-            document.getElementById("vulnerabilityDistribution");
+            document.getElementById(
+                "vulnerabilityDistribution"
+            );
 
         distribution.innerHTML = "";
-const vulnerabilityCounts = data.vulnerability_counts;
-const maxCount = Math.max(...Object.values(vulnerabilityCounts), 1);
 
-for (const [type, count] of Object.entries(vulnerabilityCounts)) {
-    const item = document.createElement("div");
-    item.className = "dashboard-bar";
 
-    const label = document.createElement("div");
-    label.className = "dashboard-bar-label";
+        const vulnerabilityCounts =
+            data.vulnerability_counts || {};
 
-    const typeLabel = document.createElement("span");
-    typeLabel.textContent = type;
+        const maxCount =
+            Math.max(
+                ...Object.values(vulnerabilityCounts),
+                1
+            );
 
-    const countLabel = document.createElement("span");
-    countLabel.textContent = count;
 
-    label.appendChild(typeLabel);
-    label.appendChild(countLabel);
+        for (
+            const [type, count]
+            of Object.entries(vulnerabilityCounts)
+        ) {
 
-    const track = document.createElement("div");
-    track.className = "dashboard-bar-track";
+            const item =
+                document.createElement("div");
 
-    const fill = document.createElement("div");
-    fill.className = "dashboard-bar-fill";
-    fill.style.width = `${(count / maxCount) * 100}%`;
+            item.className =
+                "dashboard-bar";
 
-    track.appendChild(fill);
-    item.appendChild(label);
-    item.appendChild(track);
 
-    distribution.appendChild(item);
-}
-        
+            const label =
+                document.createElement("div");
+
+            label.className =
+                "dashboard-bar-label";
+
+
+            const typeLabel =
+                document.createElement("span");
+
+            typeLabel.textContent = type;
+
+
+            const countLabel =
+                document.createElement("span");
+
+            countLabel.textContent = count;
+
+
+            label.appendChild(typeLabel);
+
+            label.appendChild(countLabel);
+
+
+            const track =
+                document.createElement("div");
+
+            track.className =
+                "dashboard-bar-track";
+
+
+            const fill =
+                document.createElement("div");
+
+            fill.className =
+                "dashboard-bar-fill";
+
+            fill.style.width =
+                `${(count / maxCount) * 100}%`;
+
+
+            track.appendChild(fill);
+
+            item.appendChild(label);
+
+            item.appendChild(track);
+
+            distribution.appendChild(item);
+        }
+
     } catch (error) {
-        console.error("Dashboard error:", error);
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
     }
 }
 
+
+// ===============================
+// Initial page load
+// ===============================
+
 loadDashboard();
+
+loadScanHistory();
